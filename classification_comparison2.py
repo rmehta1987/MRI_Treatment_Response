@@ -188,11 +188,11 @@ def runClassifiers(xtrain, ytrain):
         tytest = ytrain[test]
     
         # Temporalrily until fixed NAN values:
-        imr = SimpleImputer(missing_values=np.nan, strategy='median')
-        imr = imr.fit(txtrain)
-        txtrain = imr.transform(txtrain)
-        imr = imr.fit(txtest)
-        txtest = imr.transform(txtest)
+        # imr = SimpleImputer(missing_values=np.nan, strategy='median')
+        # imr = imr.fit(txtrain)
+        # txtrain = imr.transform(txtrain)
+        # imr = imr.fit(txtest)
+        # txtest = imr.transform(txtest)
         print ("One Iteration of CV")
         # iterate over classifiers
         for i, (name, clf) in enumerate(zip(names, classifiers2)):
@@ -496,9 +496,9 @@ def runScript1():
     ytrain = yset[trainvalind]
     xtest = xset[trainvalind[-1]:] # get the remaining items from the dataset
     ytest = yset[trainvalind[-1]:] # get the remaining items from the dataset
-    imr = SimpleImputer(missing_values=np.nan, strategy='median')
-    imr = imr.fit(xtest)
-    xtest = imr.transform(xtest)
+    #imr = SimpleImputer(missing_values=np.nan, strategy='median')
+    #imr = imr.fit(xtest)
+    #xtest = imr.transform(xtest)
     np.save("xtrain_80_ivim_ctrw.npy",xset)
     np.save("ytrain_80_ivim_ctrw.npy",yset)
     np.save("xtest_ivim_ctrw.npy",xtest)
@@ -539,9 +539,9 @@ def runScript2():
     ytest = np.load("ytest_ivim_ctrw.npy")
     
     #### COMMENT OUT ONCE NANS ARE FIXED
-    imr = SimpleImputer(missing_values=np.nan, strategy='median')
-    imr = imr.fit(xtrain)
-    xtrain = imr.transform(xtrain)
+    #imr = SimpleImputer(missing_values=np.nan, strategy='median')
+    #imr = imr.fit(xtrain)
+    #xtrain = imr.transform(xtrain)
     
     b_estimator, best_params_ = runGridSearch(xtrain, ytrain, f2names, grid_classifier=GradientBoostingClassifier())
     
@@ -555,13 +555,47 @@ def runScript3():
     bestparams = np.load("bestparams.npy")
     
     #### COMMENT OUT ONCE NANS ARE FIXED
-    imr = SimpleImputer(missing_values=np.nan, strategy='median')
-    imr = imr.fit(xtrain)
-    xtrain = imr.transform(xtrain)
+    #imr = SimpleImputer(missing_values=np.nan, strategy='median')
+    #imr = imr.fit(xtrain)
+    #xtrain = imr.transform(xtrain)
     
     runScriptBro(xtrain, ytrain, bestparams)
 
 
-runScript2()
+#Run using created trained and test files
+def runScript4(): 
+    
+    xtrain = np.load("xtrain_80_ivim_ctrw.npy")
+    ytrain = np.load("ytrain_80_ivim_ctrw.npy")
+    xtest = np.load("xtest_ivim_ctrw.npy")
+    ytest = np.load("ytest_ivim_ctrw.npy")
+
+    atitle = "Org and IVIM Maps Cross Validation"
+    accscore, fonescore, std, importances, tprs, aucs, all_models = runClassifiers(xtrain, ytrain)
+    print ("Finished Classification and now plotting")
+    visualizeResults2(accscore, fonescore, tprs, aucs, fnames, atitle)
+    xtestlen = len(xtest)
+    for i in range(len(all_models)):
+        model = all_models[i]
+        print (classifiers2[i])
+        testacc = []
+        testauc = []
+        testf1 = []
+        for i in range(500):
+            # prepare train and test sets
+            indicies = resample(np.arange(xtestlen), n_samples=xtestlen-2, replace=False)
+            # evaluate model
+            ypred = model.predict(xtest[indicies])
+            probz = model.predict_proba(xtest[indicies,:])
+            fpr, tpr, thresholds = roc_curve(ytest[indicies].ravel(),probz[:,1])
+            testacc.append(accuracy_score(ytest[indicies].ravel(), ypred))
+            testauc.append(auc(fpr,tpr))
+            testf1.append(f1_score(ytest[indicies].ravel(),ypred))
+
+        print (np.std(testf1), np.std(testacc), np.std(testauc))   
+        print (np.mean(testf1), np.mean(testacc), np.mean(testauc)) 
+        print (np.median(testf1), np.median(testacc), np.median(testauc))
+
+runScript1()
 print ("COMPLETED WOO")
 

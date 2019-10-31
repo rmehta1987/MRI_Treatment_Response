@@ -100,7 +100,7 @@ def kurt_(name,val,freq):
             return (knumer.sum()/(freq.sum()))-3
         except Warning as e:
             print ("Kurt warning: ", e)
-            undef = -10
+            undef = -39.1754
             print ("name: ", name)
             return undef
     
@@ -116,9 +116,7 @@ def skew_(name, val,freq):
         except Warning as e:
             print ("Skew warning: ", e)
             print ("name: ", name)
-            undef = -30
-            #temp = "Skew " + name
-            #viz.bar(X=val,Y=freq,opts=dict(title=temp))
+            undef = -39.1754
             return undef
 
 def percentile(thehist, N, percent):
@@ -130,7 +128,8 @@ def percentile(thehist, N, percent):
     @return - the bin-edge corresponding to the percentile value'''
 
 
-    theval = np.floor(N[-1]*percent)
+    #theval = np.floor(N[-1]*percent)
+    theval = N[-1]*percent
     theind = np.searchsorted(N,theval)
   
     if theind == 0:
@@ -143,7 +142,7 @@ def percentile(thehist, N, percent):
         bc2 = thehist[1][theind+1]
         bc1 = thehist[1][theind]
         bc = ((bc2-bc1)*theperc)+bc1
-
+    
     return bc,theind
 
 def getHistFeatures(name, amaps, bmaps, dmaps, diffmaps, perfmaps, fmaps, bin_width):
@@ -201,8 +200,8 @@ def getHistFeatures(name, amaps, bmaps, dmaps, diffmaps, perfmaps, fmaps, bin_wi
     fmin = (fmaps.ravel()[np.flatnonzero(fmaps)]).min()
     fmax = (fmaps.ravel()[np.flatnonzero(fmaps)]).max()
     
-    print ("amin {:.2f} amax {:.2f} bmin {:.2f} bmax {:.2f} dmin {:.2f} dmax {:.2f} diffmin {:.2f} diffmax {:.2f} perfmin {:.2f} perfmax {:.2f} fmin {:.2f} fmin {:.2f}"
-           .format(amin, amax, bmin, bmax, dmin, dmax, diffmin, diffmax, perfmin, perfmax, fmin, fmax))
+    #print ("amin {:.2f} amax {:.2f} bmin {:.2f} bmax {:.2f} dmin {:.2f} dmax {:.2f} diffmin {:.2f} diffmax {:.2f} perfmin {:.2f} perfmax {:.2f} fmin {:.2f} fmin {:.2f}"
+    #       .format(amin, amax, bmin, bmax, dmin, dmax, diffmin, diffmax, perfmin, perfmax, fmin, fmax))
 
     for i, (a, b, d, e, f, g) in enumerate(zip(amaps, bmaps, dmaps, diffmaps, perfmaps, fmaps)):
 
